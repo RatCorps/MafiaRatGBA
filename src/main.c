@@ -1,24 +1,13 @@
-#include <stdint.h>
-
-typedef uint16_t u16;
-typedef int16_t i16;
-typedef uint8_t u8;
-typedef int8_t i8;
-
-#define REG_DISPCNT *(volatile u16 *)0x04000000
-#define VRAM ((volatile u16 *)0x06000000)
-#define EWRAM ((volatile u16 *)0x02000000)
-#define IWRAM ((volatile u16 *)0x03000000)
-#define REG_VCOUNT *(volatile u16 *)0x04000006
-
-#define MODE3 0x0003
-#define BG2_ENABLE 0x0400
+#include "defs.h"
+#include "things.h"
 
 void wait_vblank();
 static inline u16 make_color(u8 r, u8 g, u8 b);
 
 int main(void) {
-  REG_DISPCNT = MODE3 | BG2_ENABLE;
+  REG_DISPCNT = MODE0 | ENABLE_SPRITES | MAPPING_1D_MODE;
+  State state;
+  init(&state);
 
   while (1) {
     wait_vblank();
