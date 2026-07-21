@@ -1,4 +1,5 @@
 #include "things.h"
+#include "tonc_input.h"
 #include "tonc_oam.h"
 #include "tonc_video.h"
 #include "spritesheet.h"
@@ -32,8 +33,8 @@ int main(void) {
 
         // read controls.
         key_poll();
-        int dx = key_is_down(KEY_RIGHT) - key_is_down(KEY_LEFT);
-        int dy = key_is_down(KEY_DOWN) - key_is_down(KEY_UP);
+        int dx = key_tri_horz();
+        int dy = key_tri_vert();
 
         // update game logic.
         Thing *c = &state.things[cursor];

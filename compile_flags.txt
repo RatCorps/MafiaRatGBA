@@ -3,3 +3,5 @@
 -I/opt/devkitpro/libtonc/include
 -I/opt/devkitpro/devkitARM/arm-none-eabi/include
 -Isrc
+-IC:\devkitPro\libtonc\include
+-IC:\devkitpro\devkitARM\arm-none-eabi\include

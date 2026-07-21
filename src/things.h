@@ -46,7 +46,7 @@ typedef uint8_t  u8;
 
 #define SPRITE_ID(t) ((t->spriteId) * 4)
 
-#define CURSOR_SPEED INT_TO_FIXED_16(8)
+#define CURSOR_SPEED INT_TO_FIXED_16(1)
 
 typedef enum {
 	NILKIND,
