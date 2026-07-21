@@ -72,11 +72,6 @@ u16 add(State* state, Thing thing) {
     state->things[slot].subX = thing.subX;
     state->things[slot].subY = thing.subY;
 
-    state->things[slot].maskWidth = thing.maskWidth;
-    state->things[slot].maskHeight = thing.maskHeight;
-    state->things[slot].scaleX = thing.scaleX;
-    state->things[slot].scaleY = thing.scaleY;
-    state->things[slot].rotation = thing.rotation;
     state->things[slot].kind = thing.kind;
     state->things[slot].spriteId = thing.spriteId;
     state->things[slot].health = thing.health;
@@ -159,29 +154,5 @@ void kindUnlink(State *state, u16 id) {
         if (state->kindHeads[k] == id) {
             state->kindHeads[k] = next;
         }
-    }
-}
-
-void memcpy16(u16 *dst, const u16 *src, u32 count) {
-    for (u32 i = 0; i < count; i++) {
-        dst[i] = src[i];
-    }
-}
-
-void memset16(u16 *dst, u16 value, u32 count) {
-    for (u32 i = 0; i < count; i++) {
-        dst[i] = value;
-    }
-}
-
-void memcpy32(u32 *dst, const u32 *src, u32 count) {
-    for (u32 i = 0; i < count; i++) {
-        dst[i] = src[i];
-    }
-}
-
-void memset32(u32 *dst, u32 value, u32 count) {
-    for (u32 i = 0; i < count; i++) {
-        dst[i] = value;
     }
 }

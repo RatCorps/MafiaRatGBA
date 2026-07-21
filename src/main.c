@@ -1,27 +1,61 @@
-#include "defs.h"
 #include "things.h"
+#include "tonc_oam.h"
+#include "tonc_video.h"
+#include "spritesheet.h"
+#include <tonc_memdef.h>
 
-void wait_vblank();
-static inline u16 make_color(u8 r, u8 g, u8 b);
+EWRAM_DATA State state;
 
 int main(void) {
-  REG_DISPCNT = MODE0 | ENABLE_SPRITES | MAPPING_1D_MODE;
-  State state;
-  init(&state);
+    // enable isr switchboard and VBlank interrupt
+    irq_init(NULL);
+    irq_enable(II_VBLANK);
 
-  while (1) {
-    wait_vblank();
-  }
-  return 0;
-}
+    REG_DISPCNT = DCNT_MODE0 | DCNT_OBJ | DCNT_OBJ_1D;
 
-void wait_vblank() {
-  while (REG_VCOUNT >= 160)
-    ;
-  while (REG_VCOUNT < 160)
-    ;
-}
+    memcpy16(pal_obj_mem, spritesheetPal, spritesheetPalLen / 2);
+    memcpy32(&tile_mem[4][0], spritesheetTiles, spritesheetTilesLen / 4);
 
-static inline u16 make_color(u8 r, u8 g, u8 b) {
-  return (r & 0x1F) | ((g & 0x1F) << 5) | ((b & 0x1F) << 10);
+    oam_init(oam_mem, 128);
+
+    init(&state);
+
+    u16 cursor = add(&state, (Thing){
+        .kind = CURSORKIND,
+        .subX = INT_TO_FIXED_16(SCREEN_WIDTH / 2),
+        .subY = INT_TO_FIXED_16(SCREEN_HEIGHT / 2),
+        .spriteId = 23,
+    });
+
+    while (1) {
+        VBlankIntrWait();
+
+        // read controls.
+        key_poll();
+        int dx = key_is_down(KEY_RIGHT) - key_is_down(KEY_LEFT);
+        int dy = key_is_down(KEY_DOWN) - key_is_down(KEY_UP);
+
+        // update game logic.
+        Thing *c = &state.things[cursor];
+        c->subX += dx * CURSOR_SPEED;
+        c->subY += dy * CURSOR_SPEED;
+
+        // render entities.
+        for (u16 i = 0; i < state.activeCount; i++) {
+            u16 id = state.activeIds[i];
+            Thing *t = &state.things[id];
+
+            // get screen position
+            i16 screenX = FIXED_16_TO_INT(t->subX);
+            i16 screenY = FIXED_16_TO_INT(t->subY);
+
+            // sprite position and appearance.
+            OBJ_ATTR *obj = &oam_mem[i];
+            obj_set_attr(obj, ATTR0_SQUARE, ATTR1_SIZE_16, ATTR2_PALBANK(0) | SPRITE_ID(t));
+            obj_set_pos(obj, screenX, screenY);
+        }
+
+        oam_copy(obj_mem, oam_mem, state.activeCount);
+    }
+    return 0;
 }

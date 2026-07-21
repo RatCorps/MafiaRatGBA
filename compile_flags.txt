@@ -1,0 +1,5 @@
+--target=arm-none-eabi
+-mcpu=arm7tdmi
+-I/opt/devkitpro/libtonc/include
+-I/opt/devkitpro/devkitARM/arm-none-eabi/include
+-Isrc

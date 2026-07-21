@@ -11,6 +11,9 @@ TARGET_NAME ?= rat_test
 SRC_DIR     ?= src
 BUILD_DIR   ?= build
 
+# --- TONC PATHS ---
+LIBTONC     := $(DEVKITPRO)/libtonc
+
 ifeq ($(OS),Windows_NT)
     RM    = del /q /f
     FIX_PATH = $(subst /,\,$1)
@@ -25,8 +28,11 @@ else
 endif
 
 ARCH    := -mthumb -mthumb-interwork
-CFLAGS  := -g -Wall -O2 $(ARCH) -mcpu=arm7tdmi -mtune=arm7tdmi -I$(SRC_DIR)
-LDFLAGS := -g $(ARCH) -specs=gba.specs
+# 1. Added -I$(LIBTONC)/include so GCC can find <tonc.h>
+CFLAGS  := -g -Wall -O2 $(ARCH) -mcpu=arm7tdmi -mtune=arm7tdmi -I$(SRC_DIR) -I$(LIBTONC)/include
+
+# 2. Added -L$(LIBTONC)/lib -ltonc so the linker includes the library functions
+LDFLAGS := -g $(ARCH) -specs=gba.specs -L$(LIBTONC)/lib -ltonc
 
 TARGET  := $(BUILD_DIR)/$(TARGET_NAME).gba
 ELF     := $(BUILD_DIR)/$(TARGET_NAME).elf
@@ -44,7 +50,7 @@ $(TARGET): $(ELF)
 	@echo "ROM Built: $@"
 
 $(ELF): $(OBJS)
-	$(CC) $(LDFLAGS) $(OBJS) -o $@
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -1,7 +1,15 @@
 #ifndef THINGS_H
 #define THINGS_H
 
-#include "defs.h"
+#include <stdint.h>
+#include <tonc.h>
+
+typedef int32_t  i32;
+typedef uint32_t u32;
+typedef int16_t  i16;
+typedef uint16_t u16;
+typedef int8_t   i8;
+typedef uint8_t  u8;
 
 #define NIL 0
 #define MAX_THINGS 256
@@ -36,8 +44,13 @@
 #define INT_TO_FIXED_8(i) ((i8)((i) << FIX_SHIFT_4))
 #define FIXED_8_TO_INT(fx) ((i8)((fx) >> FIX_SHIFT_4))
 
+#define SPRITE_ID(t) ((t->spriteId) * 4)
+
+#define CURSOR_SPEED INT_TO_FIXED_16(8)
+
 typedef enum {
 	NILKIND,
+	CURSORKIND,
 	UNITKIND,
 	PARTICLEKIND,
 	PROJECTILEKIND,
@@ -50,19 +63,20 @@ typedef struct {
 	u16 denseId;
 	i16 subX;
 	i16 subY;
+	// personal fields are leftovers of the Things engine which are not relevant here, and i
+	// didn't remove them to keep the alignment.
 	u16 personalField1;
 	u16 personalField2;
+	u16 personalField3;
+	u16 personalField4;
 	u16 nextSibId;
 	u16 prevSibId;
-	i8 maskWidth;
-	i8 maskHeight;
-	i8 scaleX;
-	i8 scaleY;
-	u8 rotation;
+	u8 personalField5;
 	u8 kind;
 	i8 spriteId;
 	i8 health;
-} __attribute__((aligned(4))) Thing; /* ordered by natural alignment, should be fine. but forcing 4 byte packing for any DMA/cacheline related oddities. */
+/* ordered by natural alignment, should be fine. but forcing 4 byte packing for any DMA/cacheline related oddities. */
+} __attribute__((aligned(4))) Thing;
 
 // this will go onto EWRAM
 typedef struct {
@@ -81,11 +95,5 @@ u16 add(State* state, Thing thing);
 void rem(State* state, u16 id);
 void kindLink(State* state, u16 id);
 void kindUnlink(State* state, u16 id);
-
-// mem helpers
-void memcpy16(u16 *dst, const u16 *src, u32 count);
-void memset16(u16 *dst, u16 value, u32 count);
-void memcpy32(u32 *dst, const u32 *src, u32 count);
-void memset32(u32 *dst, u32 value, u32 count);
 
 #endif
