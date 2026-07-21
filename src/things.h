@@ -65,6 +65,8 @@ typedef struct {
 	i16 subY;
 	// personal fields are leftovers of the Things engine which are not relevant here, and i
 	// didn't remove them to keep the alignment.
+	// the personal fields can and should be abstracted onto a union for the specific usage
+	// of the different Kinds.
 	u16 personalField1;
 	u16 personalField2;
 	u16 personalField3;
