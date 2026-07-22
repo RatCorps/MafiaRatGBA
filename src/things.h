@@ -1,6 +1,7 @@
 #ifndef THINGS_H
 #define THINGS_H
 
+#include "tonc_video.h"
 #include <stdint.h>
 #include <tonc.h>
 
@@ -14,6 +15,12 @@ typedef uint8_t  u8;
 #define NIL 0
 #define MAX_THINGS 256
 #define MAX_ALARMS 4
+#define TILE_SIZE 16
+#define SCREEN_HALF_WIDTH 120
+#define SCREEN_HALF_HEIGHT 80
+#define GRID_WIDTH (SCREEN_WIDTH / TILE_SIZE)
+#define GRID_HEIGHT (SCREEN_HEIGHT / TILE_SIZE)
+#define GRID_SIZE (GRID_WIDTH * GRID_HEIGHT)
 
 /*
 	the gba has no hardware Floating Point Unit, so any float usages at runtime will engage
@@ -57,6 +64,26 @@ typedef enum {
 	KIND_AMOUNT
 } Kind;
 
+// this is a semantic convention. this could be easily be a bool but i prefer it to be an enum because it is way more readable.
+typedef enum {
+	TEAM_RAT,
+	TEAM_CAT
+} Team;
+
+typedef enum {
+	RANGE_INFANTRY = 1,
+} UnitRange;
+
+typedef struct {
+	i16 x, y;
+} Vec2_i16;
+
+/*
+ideally this struct should stay at 32 bytes. the IWRAM has a 32-bit bus and the EWRAM a 16-bit one.
+when this struct stays at 32 bytes maximum, it takes 8 cpu cycles to fetch it when in IWRAM and 16 if it is in EWRAM.
+anymore and we're using more cycles than what is sensible.
+any less and we're underutilizing block space.
+*/
 typedef struct {
 	i16 alarms[MAX_ALARMS];
 	u16 id;
@@ -67,37 +94,48 @@ typedef struct {
 	// didn't remove them to keep the alignment.
 	// the personal fields can and should be abstracted onto a union for the specific usage
 	// of the different Kinds.
-	u16 personalField1;
-	u16 personalField2;
-	u16 personalField3;
-	u16 personalField4;
+	union {
+		struct {
+			u16 personalField1; // unused for now, can be replaced
+			u16 personalField2; // unused for now, can be replaced
+			u16 personalField3;	 // unused for now, can be replaced
+			u8 personalField4; // unused for now, can be replaced
+			u8 team;
+		} unit;
+	} payload;
 	u16 nextSibId;
 	u16 prevSibId;
-	u8 personalField5;
+	u8 personalField5; // unused for now, can be replaced
 	u8 kind;
 	i8 spriteId;
 	i8 health;
-	u32 ownedByPlayer;
-	
 /* ordered by natural alignment, should be fine. but forcing 4 byte packing for any DMA/cacheline related oddities. */
 } __attribute__((aligned(4))) Thing;
 
 // this will go onto EWRAM
 typedef struct {
 	Thing things[MAX_THINGS];
+	Thing* selectedUnit;
+	u16 grid[GRID_SIZE];
 	u16 activeIds[MAX_THINGS];
 	u16 kindHeads[KIND_AMOUNT];
 	u16 activeCount;
 	u16 nextEmptySlot;
+	u8 reachableTiles[GRID_SIZE];
 } __attribute__((aligned(4))) State;
 
 extern const i8 SINTABLE[256];
 extern const i8 COSTABLE[256];
+extern const Vec2_i16 DIRECTIONS[4];
 
 void init(State *state);
 u16 add(State* state, Thing thing);
+Thing* get(State* state, u16 id);
 void rem(State* state, u16 id);
 void kindLink(State* state, u16 id);
 void kindUnlink(State* state, u16 id);
+Vec2_i16 world2grid(Vec2_i16 worldPos);
+u32 GRID_INDEX(Vec2_i16 gridpos);
+void calculateMovementRange(Vec2_i16 startGridPos, u32 maxRange, u8 reachableTiles[GRID_SIZE]);
 
 #endif

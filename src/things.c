@@ -39,8 +39,16 @@ const i8 COSTABLE[256]= {
     118,  119,  121,  122,  122,  123,  124,  125,  126,  126,  127,  127,  127,  127,  127,  127,
 };
 
+const Vec2_i16 DIRECTIONS[4] = {
+	{ 0, -1}, // NORTH
+    { 0,  1}, // SORTH
+    {-1,  0}, // WORTH
+    { 1,  0}  // EORTH
+};
+
 void init(State *state) {
     state->activeCount = 0;
+	state->selectedUnit = NULL;
     memset(state->activeIds, NIL, MAX_THINGS * sizeof(u16));
 
     state->things[NIL].id = NIL;
@@ -69,20 +77,12 @@ u16 add(State* state, Thing thing) {
     u16 slot = state->nextEmptySlot;
     state->nextEmptySlot = state->things[slot].nextSibId;
 
-    state->things[slot].subX = thing.subX;
-    state->things[slot].subY = thing.subY;
-
-    state->things[slot].kind = thing.kind;
-    state->things[slot].spriteId = thing.spriteId;
-    state->things[slot].health = thing.health;
-    state->things[slot].ownedByPlayer = thing.ownedByPlayer;
+    state->things[slot] = thing;
 
     memcpy(state->things[slot].alarms, thing.alarms, sizeof(thing.alarms));
 
     state->things[slot].id = slot;
 
-    state->things[slot].personalField1 = NIL;
-    state->things[slot].personalField2 = NIL;
     state->things[slot].nextSibId = NIL;
     state->things[slot].prevSibId = NIL;
 
@@ -93,6 +93,10 @@ u16 add(State* state, Thing thing) {
     kindLink(state, slot);
 
     return slot;
+}
+
+Thing* get(State* state, u16 id) {
+	return (id > 0 && id < MAX_THINGS) ? &state->things[id] : &state->things[NIL];
 }
 
 void rem(State *state, u16 id) {
@@ -154,6 +158,52 @@ void kindUnlink(State *state, u16 id) {
 
         if (state->kindHeads[k] == id) {
             state->kindHeads[k] = next;
+        }
+    }
+}
+
+// assumes the values being passed are fixed point.
+Vec2_i16 world2grid(Vec2_i16 worldPos) {
+	return (Vec2_i16){
+		.x = worldPos.x >> 8,
+		.y = worldPos.y >> 8
+	};
+}
+
+u32 GRID_INDEX(Vec2_i16 gridpos) {
+	return gridpos.y * GRID_WIDTH + gridpos.x;
+}
+
+/* https://www.geeksforgeeks.org/dsa/breadth-first-search-or-bfs-for-a-graph/ */
+void calculateMovementRange(Vec2_i16 startGridPos, u32 maxRange, u8 reachableTiles[GRID_SIZE]) {
+	// 0 = unvisited
+	memset(reachableTiles, 0, GRID_SIZE);
+	static Vec2_i16 queue[GRID_SIZE];
+	u32 head = 0;
+	u32 tail = 0;
+
+    reachableTiles[GRID_INDEX(startGridPos)] = maxRange + 1; // offset the zero
+    queue[tail++] = startGridPos;
+
+    while (head < tail) {
+        Vec2_i16 current = queue[head++];
+        int remainingMoves = reachableTiles[GRID_INDEX(current)];
+
+        if (remainingMoves <= 0) continue;
+
+        u8 nextMove = remainingMoves - 1;
+
+        // check cardinal neighbors
+        for (int i = 0; i < 4; i++) {
+            Vec2_i16 nextGridPos = {current.x + DIRECTIONS[i].x, current.y + DIRECTIONS[i].y};
+
+            // check bounds
+            if (nextGridPos.x >= 0 && nextGridPos.x < GRID_WIDTH && nextGridPos.y >= 0 && nextGridPos.y < GRID_HEIGHT) {
+                if (reachableTiles[GRID_INDEX(nextGridPos)] < nextMove) {
+                    reachableTiles[GRID_INDEX(nextGridPos)] = nextMove;
+                    queue[tail++] = nextGridPos;
+                }
+            }
         }
     }
 }

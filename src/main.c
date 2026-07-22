@@ -1,15 +1,14 @@
 #include "things.h"
-#include "tonc_input.h"
-#include "tonc_nocash.h"
-#include "tonc_oam.h"
-#include "tonc_video.h"
+#include <tonc_input.h>
+#include <tonc_nocash.h>
+#include <tonc_oam.h>
 #include "spritesheet.h"
+#include "tonc_core.h"
+#include "tonc_types.h"
 #include <tonc_memdef.h>
 
-EWRAM_DATA State state;
+EWRAM_DATA State state = {0};
 
-#define GRID_HEIGHT 16;
-#define GRID_WIDTH 16;
 int main(void) {
     // enable isr switchboard and VBlank interrupt
     irq_init(NULL);
@@ -24,23 +23,29 @@ int main(void) {
 
     init(&state);
 
-        u16 cursor = add(&state, (Thing){
+	u16 cursor = add(&state, (Thing){
         .kind = CURSORKIND,
-        .subX = INT_TO_FIXED_16(SCREEN_WIDTH / 2),
-        .subY = INT_TO_FIXED_16(SCREEN_HEIGHT / 2),
+        .subX = INT_TO_FIXED_16(SCREEN_HALF_WIDTH),
+        .subY = INT_TO_FIXED_16(SCREEN_HALF_HEIGHT),
         .spriteId = 23,
-        .ownedByPlayer = 1,
     });
 
-    u16 rat = add(&state, (Thing){
+    /*u16 rat =*/add(&state, (Thing){
         .kind = UNITKIND,
-        .subX = INT_TO_FIXED_16(SCREEN_WIDTH/2),
-        .subY = INT_TO_FIXED_16(SCREEN_HEIGHT / 2),
+        .subX = INT_TO_FIXED_16(SCREEN_HALF_WIDTH),
+        .subY = INT_TO_FIXED_16(SCREEN_HALF_HEIGHT),
         .spriteId = 1,
-        .ownedByPlayer = 1,
+        .payload.unit.team = TEAM_RAT,
     });
-    int row;
-    int collumn; 
+	
+
+	// after creation
+	// populate the grid ONCE.
+	for (size_t i = 0; i < state.activeCount; ++i) {
+		if (state.things[i].kind != UNITKIND) continue;
+		state.grid[GRID_INDEX(world2grid((Vec2_i16){state.things[i].subX, state.things[i].subY}))] = state.things[i].id;
+	}
+
     while(1) {
         VBlankIntrWait();
        
@@ -50,31 +55,27 @@ int main(void) {
         int dy = key_tri_vert();
 
         Thing *c = &state.things[cursor];
-        Thing *r = &state.things[rat];
-     if  (KEY_DOWN_NOW(KEY_A)){
-        
-         for(row = 1; row < 15; row++){
-             for (collumn = 1; collumn < 10; collumn++){
-                 int min_x = row * 16 - 16;
-                 int max_x = row*16;
-                 int min_y = collumn *16 - 16;
-                 int max_y = collumn * 16;
-
-
-                 if (c->subX >= min_x && c->subX < max_x && c->subY >= min_y && c->subY < max_y){
-                     nocash_puts("teste");
-                     return 0;
-                 }
-             }
-         }
-      }        
- if (c->ownedByPlayer == 1){
+        //Thing *r = &state.things[rat];
 
         // update game logic.
-        c->subX += dx * CURSOR_SPEED;
-        
+		c->subX += dx * CURSOR_SPEED;
         c->subY += dy * CURSOR_SPEED;
-}
+
+		if (key_hit(KEY_A)) {
+			Vec2_i16 gridpos = world2grid((Vec2_i16){c->subX, c->subY});
+			u32 id = state.grid[GRID_INDEX(gridpos)];
+			if (id != NIL) {
+				// we've hit an occupied tile.
+				// we need to select the unit at this tile.
+				state.selectedUnit = get(&state, id);
+				if (state.selectedUnit->payload.unit.team == TEAM_RAT) {
+					// it's a player controlled unit.
+					// we need to determine the possible positions we can move at.
+					calculateMovementRange(gridpos, RANGE_INFANTRY, state.reachableTiles);
+				}
+			}
+		}
+
         // render entities.
         for (u16 i = 0; i < state.activeCount; i++) {
             u16 id = state.activeIds[i];
