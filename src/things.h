@@ -4,6 +4,7 @@
 #include "tonc_video.h"
 #include <stdint.h>
 #include <tonc.h>
+#include <string.h>
 
 typedef int32_t  i32;
 typedef uint32_t u32;
@@ -11,6 +12,8 @@ typedef int16_t  i16;
 typedef uint16_t u16;
 typedef int8_t   i8;
 typedef uint8_t  u8;
+
+#define OVERLAY_SBB 28
 
 #define NIL 0
 #define MAX_THINGS 256
@@ -53,7 +56,7 @@ typedef uint8_t  u8;
 
 #define SPRITE_ID(t) ((t->spriteId) * 4)
 
-#define CURSOR_SPEED INT_TO_FIXED_16(1)
+#define CURSOR_SPEED INT_TO_FIXED_16(TILE_SIZE)
 
 typedef enum {
 	NILKIND,
@@ -71,7 +74,7 @@ typedef enum {
 } Team;
 
 typedef enum {
-	RANGE_INFANTRY = 1,
+	RANGE_INFANTRY = 2,
 } UnitRange;
 
 typedef struct {
@@ -135,7 +138,10 @@ void rem(State* state, u16 id);
 void kindLink(State* state, u16 id);
 void kindUnlink(State* state, u16 id);
 Vec2_i16 world2grid(Vec2_i16 worldPos);
+Vec2_i16 grid2world(Vec2_i16 gridPos);
 u32 GRID_INDEX(Vec2_i16 gridpos);
 void calculateMovementRange(Vec2_i16 startGridPos, u32 maxRange, u8 reachableTiles[GRID_SIZE]);
+void drawMovementOverlay(u8 reachableTiles[GRID_SIZE]);
+u32 isSelectedPositionReachable(u8 reachableTiles[GRID_SIZE], Vec2_i16 gridPos);
 
 #endif

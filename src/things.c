@@ -1,5 +1,4 @@
 #include "things.h"
-#include "string.h"
 
 const i8 SINTABLE[256] = {
     0,    3,    6,    9,   13,   16,   19,   22,   25,   28,   31,   34,   37,   40,   43,   46,
@@ -164,10 +163,18 @@ void kindUnlink(State *state, u16 id) {
 
 // assumes the values being passed are fixed point.
 Vec2_i16 world2grid(Vec2_i16 worldPos) {
+    return (Vec2_i16){
+        .x = FIXED_16_TO_INT(worldPos.x) / TILE_SIZE,
+        .y = FIXED_16_TO_INT(worldPos.y) / TILE_SIZE
+    };
+}
+
+// returns fixed point, top left origin position.
+Vec2_i16 grid2world(Vec2_i16 gridPos) {
 	return (Vec2_i16){
-		.x = worldPos.x >> 8,
-		.y = worldPos.y >> 8
-	};
+        .x = INT_TO_FIXED_16(gridPos.x * TILE_SIZE),
+        .y = INT_TO_FIXED_16(gridPos.y * TILE_SIZE)
+    };
 }
 
 u32 GRID_INDEX(Vec2_i16 gridpos) {
@@ -206,4 +213,29 @@ void calculateMovementRange(Vec2_i16 startGridPos, u32 maxRange, u8 reachableTil
             }
         }
     }
+}
+
+void drawMovementOverlay(u8 reachableTiles[GRID_SIZE]) {
+    SCR_ENTRY *map = se_mem[OVERLAY_SBB];
+
+    for (u32 y = 0; y < GRID_HEIGHT; y++) {
+        for (u32 x = 0; x < GRID_WIDTH; x++) {
+            u16 tile = 0;
+
+            if (reachableTiles[GRID_INDEX((Vec2_i16){x, y})] > 0) tile = 1;
+
+            int mapX = x * 2;
+            int mapY = y * 2;
+
+            map[(mapY + 0) * 32 + (mapX + 0)] = tile;
+            map[(mapY + 0) * 32 + (mapX + 1)] = tile;
+            map[(mapY + 1) * 32 + (mapX + 0)] = tile;
+            map[(mapY + 1) * 32 + (mapX + 1)] = tile;
+        }
+    }
+}
+
+u32 isSelectedPositionReachable(u8 reachableTiles[GRID_SIZE], Vec2_i16 gridPos) {
+	if (reachableTiles[GRID_INDEX(gridPos)] > 0) return 1;
+	return 0;
 }
