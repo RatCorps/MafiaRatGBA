@@ -75,6 +75,7 @@ u16 add(State* state, Thing thing) {
     state->things[slot].kind = thing.kind;
     state->things[slot].spriteId = thing.spriteId;
     state->things[slot].health = thing.health;
+    state->things[slot].ownedByPlayer = thing.ownedByPlayer;
 
     memcpy(state->things[slot].alarms, thing.alarms, sizeof(thing.alarms));
 

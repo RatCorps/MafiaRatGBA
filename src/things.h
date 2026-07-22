@@ -77,6 +77,8 @@ typedef struct {
 	u8 kind;
 	i8 spriteId;
 	i8 health;
+	u32 ownedByPlayer;
+	
 /* ordered by natural alignment, should be fine. but forcing 4 byte packing for any DMA/cacheline related oddities. */
 } __attribute__((aligned(4))) Thing;
 
