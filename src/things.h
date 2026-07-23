@@ -115,14 +115,20 @@ typedef struct {
 		struct {
 			u16 personalField1; // unused for now, can be replaced
 			u16 personalField2; // unused for now, can be replaced
-			u16 personalField3;	 // unused for now, can be replaced
+			u8 personalField3; // unused for now, can be replaced
+			/*
+			 health points.
+			 (morale acts as a multiplier, morale 10 is 1, morale 1 would be 0.1)
+	         morale * (attacking unit's penetration - (defending unit's base resistance + terrain resistance))
+			*/
+			u8 morale;
 			u8 rank; // this unit's rank in the mafia.
 			u8 team;
 		} unit;
 	} payload;
 	u16 nextSibId;
 	u16 prevSibId;
-	u8 personalField5; // unused for now, can be replaced
+	u8 personalField4; // unused for now, can be replaced
 	u8 kind;
 	i8 spriteId;
 	i8 health;
