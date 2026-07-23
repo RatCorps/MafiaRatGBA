@@ -22,6 +22,9 @@ int main(void) {
 	memcpy16(pal_bg_mem, overlayPal, overlayPalLen / 2);
     memcpy32(&tile_mem[0][1], overlayTiles, overlayTilesLen / 4);
 
+    // apply the transparency in the tiles.
+    pal_bg_mem[0] = 0x0000;
+
     memcpy16(pal_obj_mem, spritesheetPal, spritesheetPalLen / 2);
     memcpy32(&tile_mem[4][0], spritesheetTiles, spritesheetTilesLen / 4);
 
@@ -33,7 +36,7 @@ int main(void) {
         .kind = CURSORKIND,
         .subX = INT_TO_FIXED_16(112),
         .subY = INT_TO_FIXED_16(80),
-        .spriteId = 23,
+        .spriteId = 17,
     });
 
     /*u16 rat =*/add(&state, (Thing){
