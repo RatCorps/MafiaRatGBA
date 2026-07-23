@@ -74,7 +74,21 @@ typedef enum {
 } Team;
 
 typedef enum {
-	RANGE_INFANTRY = 2,
+    RANK_INFANTRY,
+    RANK_MADE_MAN,
+    RANK_MECCANIZATA,
+    RANK_CECCHINO,
+    RANK_UNDERBOSS,
+    RANK_CAPOREGIME
+} RANK;
+
+// this is balancing.
+typedef enum {
+	RANGE_INFANTRY = 3,
+	RANGE_MADE_MAN = 2,
+    RANGE_MECCANIZATA = 2,
+    RANGE_UNDERBOSS = 4,
+    RANGE_CAPOREGIME = 3,
 } UnitRange;
 
 typedef struct {
@@ -102,7 +116,7 @@ typedef struct {
 			u16 personalField1; // unused for now, can be replaced
 			u16 personalField2; // unused for now, can be replaced
 			u16 personalField3;	 // unused for now, can be replaced
-			u8 personalField4; // unused for now, can be replaced
+			u8 rank; // this unit's rank in the mafia.
 			u8 team;
 		} unit;
 	} payload;
@@ -127,14 +141,30 @@ typedef struct {
 	u8 reachableTiles[GRID_SIZE];
 } __attribute__((aligned(4))) State;
 
+#define MAX_FRAMES 2
+
+typedef enum {
+    ANIM_RAT,
+    ANIM_BIGRAT
+} AnimName;
+
+typedef struct {
+    i8 frames[MAX_FRAMES];
+    i8 ticksPerFrame; // fixed point 4.4
+    i8 loops;
+} __attribute__((aligned(4))) Animation;
+
 extern const i8 SINTABLE[256];
 extern const i8 COSTABLE[256];
 extern const Vec2_i16 DIRECTIONS[4];
+extern const Animation ANIMATIONS[];
+extern const UnitRange UNIT_RANGES[];
 
 void init(State *state);
 u16 add(State* state, Thing thing);
 Thing* get(State* state, u16 id);
 void rem(State* state, u16 id);
+void animate(Thing* thing, const Animation* anim);
 void kindLink(State* state, u16 id);
 void kindUnlink(State* state, u16 id);
 Vec2_i16 world2grid(Vec2_i16 worldPos);

@@ -41,9 +41,10 @@ int main(void) {
         .subX = INT_TO_FIXED_16(112),
         .subY = INT_TO_FIXED_16(80),
         .spriteId = 1,
+        .payload.unit.rank = RANK_CAPOREGIME,
         .payload.unit.team = TEAM_RAT,
     });
-	
+
 	// after creation
 	// populate the grid ONCE.
 	for (size_t i = 0; i < state.activeCount; ++i) {
@@ -59,7 +60,7 @@ int main(void) {
 
     while(1) {
         VBlankIntrWait();
-       
+
         // read controls.
         key_poll();
 
@@ -71,11 +72,32 @@ int main(void) {
 		else if (repeatedKeys & KEY_UP) dy = -1;
 
         Thing *c = &state.things[cursor];
-        //Thing *r = &state.things[rat];
 
         // update game logic.
 		c->subX += dx * CURSOR_SPEED;
         c->subY += dy * CURSOR_SPEED;
+
+        // increment alarms
+        for (u32 i = 0; i < state.activeCount; ++i) {
+            u16 id = state.activeIds[i];
+            Thing* t = get(&state, id);
+            t->alarms[0]++; // this is the animation tick
+            for (u32 j = 1; j < MAX_ALARMS; ++j) {
+                if (t->alarms[i] > 0) t->alarms[j]--;
+            }
+
+            if (t->kind == UNITKIND) {
+                switch(t->payload.unit.rank) {
+                    case RANK_UNDERBOSS:
+                    case RANK_CAPOREGIME:
+                        animate(t, &ANIMATIONS[ANIM_BIGRAT]);
+                        break;
+                    default:
+                        animate(t, &ANIMATIONS[ANIM_RAT]);
+                        break;
+                }
+            }
+        }
 
 		if (key_hit(KEY_A)) {
 			Vec2_i16 gridPos = world2grid((Vec2_i16){c->subX, c->subY});
@@ -90,24 +112,31 @@ int main(void) {
 						// it's a player controlled unit.
 						state.selectedUnit = selectedUnit;
 						// we need to determine the possible positions we can move at.
-						calculateMovementRange(gridPos, RANGE_INFANTRY, state.reachableTiles);
+						// TODO: add more ranges to the enum.
+						calculateMovementRange(gridPos, UNIT_RANGES[selectedUnit->payload.unit.rank], state.reachableTiles);
 					}
-				}	
+				}
 			} else { // we already have a selected unit.
 				if (isSelectedPositionReachable(state.reachableTiles, gridPos))	{
-					// update grid
-					Vec2_i16 unitGridPos = world2grid((Vec2_i16){state.selectedUnit->subX, state.selectedUnit->subY});
-					state.grid[GRID_INDEX(unitGridPos)] = NIL;
-					state.grid[GRID_INDEX(gridPos)] = state.selectedUnit->id;
+				    /*
+						this is a bandaid, ideally we should bar any occupied tiles
+						in the previous branch when we run calculateMovementRange.
+					*/
+				    if (!state.grid[GRID_INDEX(gridPos)]) {
+						// update grid
+						Vec2_i16 unitGridPos = world2grid((Vec2_i16){state.selectedUnit->subX, state.selectedUnit->subY});
+						state.grid[GRID_INDEX(unitGridPos)] = NIL;
+						state.grid[GRID_INDEX(gridPos)] = state.selectedUnit->id;
 
-					//move
-					Vec2_i16 targetPos = grid2world(gridPos);
-					state.selectedUnit->subX = targetPos.x;
-					state.selectedUnit->subY = targetPos.y;
+						//move
+						Vec2_i16 targetPos = grid2world(gridPos);
+						state.selectedUnit->subX = targetPos.x;
+						state.selectedUnit->subY = targetPos.y;
 
-					state.selectedUnit = NULL;
-					//clearReachableTiles
-					memset(&state.reachableTiles, 0, GRID_SIZE);
+						state.selectedUnit = NULL;
+						//clearReachableTiles
+						memset(&state.reachableTiles, 0, GRID_SIZE);
+					}
 				}
 			}
 		}
@@ -116,7 +145,7 @@ int main(void) {
 		drawMovementOverlay(state.reachableTiles);
 
         // render entities.
-        for (u16 i = 0; i < state.activeCount; i++) {
+        for (u16 i = 0; i < state.activeCount; ++i) {
             u16 id = state.activeIds[i];
             Thing *t = &state.things[id];
 

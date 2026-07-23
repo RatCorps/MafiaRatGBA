@@ -45,6 +45,19 @@ const Vec2_i16 DIRECTIONS[4] = {
     { 1,  0}  // EORTH
 };
 
+const Animation ANIMATIONS[] = {
+    [ANIM_RAT] = { .frames = {0, 1}, .ticksPerFrame = 16, .loops = 1 },
+    [ANIM_BIGRAT] = { .frames = {2, 3}, .ticksPerFrame = 16, .loops = 1 },
+};
+
+const UnitRange UNIT_RANGES[] = {
+    [RANK_INFANTRY] = RANGE_INFANTRY,
+    [RANK_MADE_MAN] = RANGE_MADE_MAN,
+    [RANK_MECCANIZATA] = RANGE_MECCANIZATA,
+    [RANK_CAPOREGIME] = RANGE_CAPOREGIME,
+    [RANK_UNDERBOSS] = RANGE_UNDERBOSS,
+};
+
 void init(State *state) {
     state->activeCount = 0;
 	state->selectedUnit = NULL;
@@ -118,6 +131,26 @@ void rem(State *state, u16 id) {
     state->things[id].kind = NILKIND;
     state->things[id].nextSibId = state->nextEmptySlot;
     state->nextEmptySlot = id;
+}
+
+void animate(Thing* thing, const Animation* anim) {
+    i16 currentTick = thing->alarms[0];
+
+    int totalAnimationTicks = anim->ticksPerFrame * MAX_FRAMES;
+
+    if (currentTick >= totalAnimationTicks) {
+        if (anim->loops) {
+            currentTick = currentTick % totalAnimationTicks;
+            thing->alarms[0] = currentTick;
+        } else {
+            currentTick = totalAnimationTicks - 1;
+        }
+    }
+
+    i8 frameIndex = currentTick / anim->ticksPerFrame;
+
+    i8 actualSpriteId = anim->frames[frameIndex];
+    thing->spriteId = actualSpriteId;
 }
 
 void kindLink(State *state, u16 id) {

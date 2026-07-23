@@ -35,6 +35,21 @@
 !_TAG_KIND_DESCRIPTION!C++	t,typedef	/typedefs/
 !_TAG_KIND_DESCRIPTION!C++	u,union	/union names/
 !_TAG_KIND_DESCRIPTION!C++	v,variable	/variable definitions/
+!_TAG_KIND_DESCRIPTION!D	M,module	/modules/
+!_TAG_KIND_DESCRIPTION!D	T,template	/templates/
+!_TAG_KIND_DESCRIPTION!D	V,version	/version statements/
+!_TAG_KIND_DESCRIPTION!D	X,mixin	/mixins/
+!_TAG_KIND_DESCRIPTION!D	a,alias	/aliases/
+!_TAG_KIND_DESCRIPTION!D	c,class	/classes/
+!_TAG_KIND_DESCRIPTION!D	e,enumerator	/enumerators (values inside an enumeration)/
+!_TAG_KIND_DESCRIPTION!D	f,function	/function definitions/
+!_TAG_KIND_DESCRIPTION!D	g,enum	/enumeration names/
+!_TAG_KIND_DESCRIPTION!D	i,interface	/interfaces/
+!_TAG_KIND_DESCRIPTION!D	m,member	/class, struct, and union members/
+!_TAG_KIND_DESCRIPTION!D	n,namespace	/namespaces/
+!_TAG_KIND_DESCRIPTION!D	s,struct	/structure names/
+!_TAG_KIND_DESCRIPTION!D	u,union	/union names/
+!_TAG_KIND_DESCRIPTION!D	v,variable	/variable definitions/
 !_TAG_KIND_DESCRIPTION!Make	I,makefile	/makefiles/
 !_TAG_KIND_DESCRIPTION!Make	m,macro	/macros/
 !_TAG_KIND_DESCRIPTION!Make	t,target	/targets/
@@ -44,6 +59,7 @@
 !_TAG_OUTPUT_VERSION	1.1	/current.age/
 !_TAG_PARSER_VERSION!C	1.1	/current.age/
 !_TAG_PARSER_VERSION!C++	2.2	/current.age/
+!_TAG_PARSER_VERSION!D	0.0	/current.age/
 !_TAG_PARSER_VERSION!Make	1.1	/current.age/
 !_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
 !_TAG_PROC_CWD	/home/jupiter/Repositories/MafiaRatGBA/	//
@@ -67,98 +83,149 @@
 !_TAG_ROLE_DESCRIPTION!Make!makefile	included	/included/
 !_TAG_ROLE_DESCRIPTION!Make!makefile	optional	/optionally included/
 $(BUILD_DIR)	Makefile	/^$(BUILD_DIR):$/;"	t
-$(BUILD_DIR)/%.o	Makefile	/^$(BUILD_DIR)\/%.o: $(SRC_DIR)\/%.c$/;"	t
+$(BUILD_DIR)/%.o	Makefile	/^$(BUILD_DIR)\/%.o: $(SRC_DIR)\/%.c | $(BUILD_DIR)$/;"	t
 $(ELF)	Makefile	/^$(ELF): $(OBJS)$/;"	t
 $(TARGET)	Makefile	/^$(TARGET): $(ELF)$/;"	t
+.SHELLFLAGS	Makefile	/^    .SHELLFLAGS := \/C$/;"	m
 ARCH	Makefile	/^ARCH    := -mthumb -mthumb-interwork$/;"	m
+BSLASH	Makefile	/^    BSLASH   := \\$(strip)$/;"	m
 BUILD_DIR	Makefile	/^BUILD_DIR   ?= build$/;"	m
-CFLAGS	Makefile	/^CFLAGS  := -g -Wall -O2 $(ARCH) -mcpu=arm7tdmi -mtune=arm7tdmi -I$(SRC_DIR) -I$(LIBTONC)\/includ/;"	m
+CFLAGS	Makefile	/^CFLAGS  := -g -Wall -O2 $(ARCH) -mcpu=arm7tdmi -mtune=arm7tdmi \\$/;"	m
+CLEAN_CMD	Makefile	/^    CLEAN_CMD = if exist "$(call FIX_PATH,$(BUILD_DIR))" rmdir \/s \/q "$(call FIX_PATH,$(BUILD_/;"	m
+CLEAN_CMD	Makefile	/^    CLEAN_CMD = rm -rf $(BUILD_DIR)$/;"	m
+CMD_SHELL	Makefile	/^    CMD_SHELL := 0$/;"	m
+CMD_SHELL	Makefile	/^    CMD_SHELL := 1$/;"	m
 COMPTIME_FIXED_16_TO_FLOAT	src/things.h	/^#define COMPTIME_FIXED_16_TO_FLOAT(/;"	d
 COMPTIME_FIXED_8_TO_FLOAT	src/things.h	/^#define COMPTIME_FIXED_8_TO_FLOAT(/;"	d
 COMPTIME_FLOAT_TO_FIXED_16	src/things.h	/^#define COMPTIME_FLOAT_TO_FIXED_16(/;"	d
 COMPTIME_FLOAT_TO_FIXED_8	src/things.h	/^#define COMPTIME_FLOAT_TO_FIXED_8(/;"	d
 COSTABLE	src/things.c	/^const i8 COSTABLE[256]= {$/;"	v	typeref:typename:const i8[256]
-DEFS_H	src/defs.h	/^#define DEFS_H$/;"	d
-DEVKITARM	Makefile	/^DEVKITARM  ?= $(DEVKITPRO)\/devkitARM$/;"	m
-DEVKITPRO	Makefile	/^DEVKITPRO  ?= \/opt\/devkitpro$/;"	m
+CURSORKIND	src/things.h	/^	CURSORKIND,$/;"	e	enum:__anonfc990d5f0103
+CURSOR_SPEED	src/things.h	/^#define CURSOR_SPEED /;"	d
+DEPS	Makefile	/^DEPS    := $(OBJS:.o=.d)$/;"	m
+DEVKITARM	Makefile	/^DEVKITARM ?= $(DEVKITPRO)\/devkitARM$/;"	m
+DEVKITPRO	Makefile	/^    DEVKITPRO ?= C:\/devkitPro$/;"	m
+DEVKITPRO	Makefile	/^    DEVKITPRO ?= \/opt\/devkitpro$/;"	m
+DIRECTIONS	src/things.c	/^const Vec2_i16 DIRECTIONS[4] = {$/;"	v	typeref:typename:const Vec2_i16[4]
 ELF	Makefile	/^ELF     := $(BUILD_DIR)\/$(TARGET_NAME).elf$/;"	m
+EMULATOR	Makefile	/^    EMULATOR ?= mGBA.exe$/;"	m
+EMULATOR	Makefile	/^    EMULATOR ?= mgba-qt$/;"	m
 FIXED_16_TO_INT	src/things.h	/^#define FIXED_16_TO_INT(/;"	d
 FIXED_8_TO_INT	src/things.h	/^#define FIXED_8_TO_INT(/;"	d
-FIX_PATH	Makefile	/^    FIX_PATH = $(subst \/,\\,$1)$/;"	m
+FIX_PATH	Makefile	/^    FIX_PATH  = $(1)$/;"	m
+FIX_PATH	Makefile	/^    FIX_PATH  = $(subst \/,$(BSLASH),$(1))$/;"	m
 FIX_SHIFT_4	src/things.h	/^#define FIX_SHIFT_4 /;"	d
+GBAFIX	Makefile	/^GBAFIX      := $(DEVKITPRO)\/tools\/bin\/gbafix$/;"	m
+GRID_HEIGHT	src/things.h	/^#define GRID_HEIGHT /;"	d
+GRID_INDEX	src/things.c	/^u32 GRID_INDEX(Vec2_i16 gridpos) {$/;"	f	typeref:typename:u32
+GRID_SIZE	src/things.h	/^#define GRID_SIZE /;"	d
+GRID_WIDTH	src/things.h	/^#define GRID_WIDTH /;"	d
+GRIT_OVERLAY_H	src/overlay.h	/^#define GRIT_OVERLAY_H$/;"	d
+GRIT_SPRITESHEET_H	src/spritesheet.h	/^#define GRIT_SPRITESHEET_H$/;"	d
 INT_TO_FIXED_16	src/things.h	/^#define INT_TO_FIXED_16(/;"	d
 INT_TO_FIXED_8	src/things.h	/^#define INT_TO_FIXED_8(/;"	d
 KIND_AMOUNT	src/things.h	/^	KIND_AMOUNT$/;"	e	enum:__anonfc990d5f0103
 Kind	src/things.h	/^} Kind;$/;"	t	typeref:enum:__anonfc990d5f0103
-LDFLAGS	Makefile	/^LDFLAGS := -g $(ARCH) -specs=gba.specs -L$(LIBTONC)\/lib -ltonc$/;"	m
+LDFLAGS	Makefile	/^LDFLAGS := -g $(ARCH) -specs=gba.specs$/;"	m
+LIBS	Makefile	/^LIBS    := -L$(LIBTONC)\/lib -ltonc$/;"	m
 LIBTONC	Makefile	/^LIBTONC     := $(DEVKITPRO)\/libtonc$/;"	m
 MAX_ALARMS	src/things.h	/^#define MAX_ALARMS /;"	d
 MAX_THINGS	src/things.h	/^#define MAX_THINGS /;"	d
-MKDIR	Makefile	/^    MKDIR = if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)$/;"	m
-MKDIR	Makefile	/^    MKDIR = mkdir -p $(BUILD_DIR)$/;"	m
+MKDIR_CMD	Makefile	/^    MKDIR_CMD = if not exist "$(call FIX_PATH,$(BUILD_DIR))" mkdir "$(call FIX_PATH,$(BUILD_DIR)/;"	m
+MKDIR_CMD	Makefile	/^    MKDIR_CMD = mkdir -p $(BUILD_DIR)$/;"	m
 NIL	src/things.h	/^#define NIL /;"	d
 NILKIND	src/things.h	/^	NILKIND,$/;"	e	enum:__anonfc990d5f0103
 OBJS	Makefile	/^OBJS    := $(SRCS:$(SRC_DIR)\/%.c=$(BUILD_DIR)\/%.o)$/;"	m
+OVERLAY_SBB	src/things.h	/^#define OVERLAY_SBB /;"	d
 PARTICLEKIND	src/things.h	/^	PARTICLEKIND,$/;"	e	enum:__anonfc990d5f0103
 PROJECTILEKIND	src/things.h	/^	PROJECTILEKIND,$/;"	e	enum:__anonfc990d5f0103
-RM	Makefile	/^    RM    = del \/q \/f$/;"	m
-RM	Makefile	/^    RM    = rm -rf$/;"	m
-RUN_CMD	Makefile	/^    RUN_CMD = mgba-qt $(TARGET) &$/;"	m
-RUN_CMD	Makefile	/^    RUN_CMD = start mgba-qt $(call FIX_PATH,$(TARGET))$/;"	m
+RANGE_INFANTRY	src/things.h	/^	RANGE_INFANTRY = 2,$/;"	e	enum:__anonfc990d5f0303
+RUN_CMD	Makefile	/^    RUN_CMD   = $(EMULATOR) $(TARGET) &$/;"	m
+RUN_CMD	Makefile	/^    RUN_CMD   = start "" "$(EMULATOR)" "$(call FIX_PATH,$(TARGET))"$/;"	m
 SCALE_4BIT	src/things.h	/^#define SCALE_4BIT /;"	d
+SCREEN_HALF_HEIGHT	src/things.h	/^#define SCREEN_HALF_HEIGHT /;"	d
+SCREEN_HALF_WIDTH	src/things.h	/^#define SCREEN_HALF_WIDTH /;"	d
+SHELL	Makefile	/^    SHELL       := cmd.exe$/;"	m
 SINTABLE	src/things.c	/^const i8 SINTABLE[256] = {$/;"	v	typeref:typename:const i8[256]
+SPRITE_ID	src/things.h	/^#define SPRITE_ID(/;"	d
 SRCS	Makefile	/^SRCS    := $(wildcard $(SRC_DIR)\/*.c)$/;"	m
 SRC_DIR	Makefile	/^SRC_DIR     ?= src$/;"	m
-State	src/things.h	/^} __attribute__((aligned(4))) State;$/;"	t	typeref:struct:__anonfc990d5f0308
+State	src/things.h	/^} __attribute__((aligned(4))) State;$/;"	t	typeref:struct:__anonfc990d5f0808
 TARGET	Makefile	/^TARGET  := $(BUILD_DIR)\/$(TARGET_NAME).gba$/;"	m
 TARGET_NAME	Makefile	/^TARGET_NAME ?= rat_test$/;"	m
+TEAM_CAT	src/things.h	/^	TEAM_CAT$/;"	e	enum:__anonfc990d5f0203
+TEAM_RAT	src/things.h	/^	TEAM_RAT,$/;"	e	enum:__anonfc990d5f0203
 THINGS_H	src/things.h	/^#define THINGS_H$/;"	d
-Thing	src/things.h	/^} __attribute__((aligned(4))) Thing; \/* ordered by natural alignment, should be fine. but forci/;"	t	typeref:struct:__anonfc990d5f0208
+TILE_SIZE	src/things.h	/^#define TILE_SIZE /;"	d
+Team	src/things.h	/^} Team;$/;"	t	typeref:enum:__anonfc990d5f0203
+Thing	src/things.h	/^} __attribute__((aligned(4))) Thing;$/;"	t	typeref:struct:__anonfc990d5f0508
 UNITKIND	src/things.h	/^	UNITKIND,$/;"	e	enum:__anonfc990d5f0103
+UnitRange	src/things.h	/^} UnitRange;$/;"	t	typeref:enum:__anonfc990d5f0303
+Vec2_i16	src/things.h	/^} Vec2_i16;$/;"	t	typeref:struct:__anonfc990d5f0408
 __anonfc990d5f0103	src/things.h	/^typedef enum {$/;"	g
-__anonfc990d5f0208	src/things.h	/^typedef struct {$/;"	s
-__anonfc990d5f0308	src/things.h	/^typedef struct {$/;"	s
-activeCount	src/things.h	/^	u16 activeCount;$/;"	m	struct:__anonfc990d5f0308	typeref:typename:u16
-activeIds	src/things.h	/^	u16 activeIds[MAX_THINGS];$/;"	m	struct:__anonfc990d5f0308	typeref:typename:u16[]
+__anonfc990d5f0203	src/things.h	/^typedef enum {$/;"	g
+__anonfc990d5f0303	src/things.h	/^typedef enum {$/;"	g
+__anonfc990d5f0408	src/things.h	/^typedef struct {$/;"	s
+__anonfc990d5f0508	src/things.h	/^typedef struct {$/;"	s
+__anonfc990d5f060a	src/things.h	/^	union {$/;"	u	struct:__anonfc990d5f0508
+__anonfc990d5f0708	src/things.h	/^		struct {$/;"	s	union:__anonfc990d5f0508::__anonfc990d5f060a
+__anonfc990d5f0808	src/things.h	/^typedef struct {$/;"	s
+activeCount	src/things.h	/^	u16 activeCount;$/;"	m	struct:__anonfc990d5f0808	typeref:typename:u16
+activeIds	src/things.h	/^	u16 activeIds[MAX_THINGS];$/;"	m	struct:__anonfc990d5f0808	typeref:typename:u16[]
 add	src/things.c	/^u16 add(State* state, Thing thing) {$/;"	f	typeref:typename:u16
-alarms	src/things.h	/^	i16 alarms[MAX_ALARMS];$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i16[]
-all	Makefile	/^all: $(BUILD_DIR) $(TARGET)$/;"	t
+alarms	src/things.h	/^	i16 alarms[MAX_ALARMS];$/;"	m	struct:__anonfc990d5f0508	typeref:typename:i16[]
+all	Makefile	/^all: $(TARGET)$/;"	t
+calculateMovementRange	src/things.c	/^void calculateMovementRange(Vec2_i16 startGridPos, u32 maxRange, u8 reachableTiles[GRID_SIZE]) {$/;"	f	typeref:typename:void
 clean	Makefile	/^clean:$/;"	t
-denseId	src/things.h	/^	u16 denseId;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:u16
-health	src/things.h	/^	i8 health;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i8
-i16	src/defs.h	/^typedef int16_t  i16;$/;"	t	typeref:typename:int16_t
-i32	src/defs.h	/^typedef int32_t  i32;$/;"	t	typeref:typename:int32_t
-i8	src/defs.h	/^typedef int8_t   i8;$/;"	t	typeref:typename:int8_t
-id	src/things.h	/^	u16 id;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:u16
+denseId	src/things.h	/^	u16 denseId;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:u16
+drawMovementOverlay	src/things.c	/^void drawMovementOverlay(u8 reachableTiles[GRID_SIZE]) {$/;"	f	typeref:typename:void
+get	src/things.c	/^Thing* get(State* state, u16 id) {$/;"	f	typeref:typename:Thing *
+grid	src/things.h	/^	u16 grid[GRID_SIZE];$/;"	m	struct:__anonfc990d5f0808	typeref:typename:u16[]
+grid2world	src/things.c	/^Vec2_i16 grid2world(Vec2_i16 gridPos) {$/;"	f	typeref:typename:Vec2_i16
+health	src/things.h	/^	i8 health;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:i8
+i16	src/things.h	/^typedef int16_t  i16;$/;"	t	typeref:typename:int16_t
+i32	src/things.h	/^typedef int32_t  i32;$/;"	t	typeref:typename:int32_t
+i8	src/things.h	/^typedef int8_t   i8;$/;"	t	typeref:typename:int8_t
+id	src/things.h	/^	u16 id;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:u16
 init	src/things.c	/^void init(State *state) {$/;"	f	typeref:typename:void
-kind	src/things.h	/^	u8 kind;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:u8
-kindHeads	src/things.h	/^	u16 kindHeads[KIND_AMOUNT];$/;"	m	struct:__anonfc990d5f0308	typeref:typename:u16[]
+isSelectedPositionReachable	src/things.c	/^u32 isSelectedPositionReachable(u8 reachableTiles[GRID_SIZE], Vec2_i16 gridPos) {$/;"	f	typeref:typename:u32
+kind	src/things.h	/^	u8 kind;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:u8
+kindHeads	src/things.h	/^	u16 kindHeads[KIND_AMOUNT];$/;"	m	struct:__anonfc990d5f0808	typeref:typename:u16[]
 kindLink	src/things.c	/^void kindLink(State *state, u16 id) {$/;"	f	typeref:typename:void
 kindUnlink	src/things.c	/^void kindUnlink(State *state, u16 id) {$/;"	f	typeref:typename:void
 main	src/main.c	/^int main(void) {$/;"	f	typeref:typename:int
-make_color	src/main.c	/^static inline u16 make_color(u8 r, u8 g, u8 b) {$/;"	f	typeref:typename:u16	file:
-maskHeight	src/things.h	/^	i8 maskHeight;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i8
-maskWidth	src/things.h	/^	i8 maskWidth;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i8
-memcpy16	src/things.c	/^void memcpy16(u16 *dst, const u16 *src, u32 count) {$/;"	f	typeref:typename:void
-memcpy32	src/things.c	/^void memcpy32(u32 *dst, const u32 *src, u32 count) {$/;"	f	typeref:typename:void
-memset16	src/things.c	/^void memset16(u16 *dst, u16 value, u32 count) {$/;"	f	typeref:typename:void
-memset32	src/things.c	/^void memset32(u32 *dst, u32 value, u32 count) {$/;"	f	typeref:typename:void
-nextEmptySlot	src/things.h	/^	u16 nextEmptySlot;$/;"	m	struct:__anonfc990d5f0308	typeref:typename:u16
-nextSibId	src/things.h	/^	u16 nextSibId;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:u16
-personalField1	src/things.h	/^	u16 personalField1;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:u16
-personalField2	src/things.h	/^	u16 personalField2;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:u16
-prevSibId	src/things.h	/^	u16 prevSibId;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:u16
+nextEmptySlot	src/things.h	/^	u16 nextEmptySlot;$/;"	m	struct:__anonfc990d5f0808	typeref:typename:u16
+nextSibId	src/things.h	/^	u16 nextSibId;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:u16
+overlayPal	src/overlay.c	/^const unsigned short overlayPal[256] __attribute__((aligned(4))) __attribute__((visibility("hidd/;"	v	typeref:typename:const unsigned short[256]
+overlayPalLen	src/overlay.h	/^#define overlayPalLen /;"	d
+overlayTiles	src/overlay.c	/^const unsigned int overlayTiles[32] __attribute__((aligned(4))) __attribute__((visibility("hidde/;"	v	typeref:typename:const unsigned int[32]
+overlayTilesLen	src/overlay.h	/^#define overlayTilesLen /;"	d
+payload	src/things.h	/^	} payload;$/;"	m	struct:__anonfc990d5f0508	typeref:union:__anonfc990d5f0508::__anonfc990d5f060a
+personalField1	src/things.h	/^			u16 personalField1; \/\/ unused for now, can be replaced$/;"	m	struct:__anonfc990d5f0508::__anonfc990d5f060a::__anonfc990d5f0708	typeref:typename:u16
+personalField2	src/things.h	/^			u16 personalField2; \/\/ unused for now, can be replaced$/;"	m	struct:__anonfc990d5f0508::__anonfc990d5f060a::__anonfc990d5f0708	typeref:typename:u16
+personalField3	src/things.h	/^			u16 personalField3;	 \/\/ unused for now, can be replaced$/;"	m	struct:__anonfc990d5f0508::__anonfc990d5f060a::__anonfc990d5f0708	typeref:typename:u16
+personalField4	src/things.h	/^			u8 personalField4; \/\/ unused for now, can be replaced$/;"	m	struct:__anonfc990d5f0508::__anonfc990d5f060a::__anonfc990d5f0708	typeref:typename:u8
+personalField5	src/things.h	/^	u8 personalField5; \/\/ unused for now, can be replaced$/;"	m	struct:__anonfc990d5f0508	typeref:typename:u8
+prevSibId	src/things.h	/^	u16 prevSibId;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:u16
+reachableTiles	src/things.h	/^	u8 reachableTiles[GRID_SIZE];$/;"	m	struct:__anonfc990d5f0808	typeref:typename:u8[]
 rebuild	Makefile	/^rebuild:$/;"	t
 rem	src/things.c	/^void rem(State *state, u16 id) {$/;"	f	typeref:typename:void
-rotation	src/things.h	/^	u8 rotation;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:u8
 run	Makefile	/^run: all$/;"	t
-scaleX	src/things.h	/^	i8 scaleX;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i8
-scaleY	src/things.h	/^	i8 scaleY;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i8
-spriteId	src/things.h	/^	i8 spriteId;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i8
-subX	src/things.h	/^	i16 subX;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i16
-subY	src/things.h	/^	i16 subY;$/;"	m	struct:__anonfc990d5f0208	typeref:typename:i16
-things	src/things.h	/^	Thing things[MAX_THINGS];$/;"	m	struct:__anonfc990d5f0308	typeref:typename:Thing[]
-u16	src/defs.h	/^typedef uint16_t u16;$/;"	t	typeref:typename:uint16_t
-u32	src/defs.h	/^typedef uint32_t u32;$/;"	t	typeref:typename:uint32_t
-u8	src/defs.h	/^typedef uint8_t  u8;$/;"	t	typeref:typename:uint8_t
-wait_vblank	src/main.c	/^void wait_vblank() {$/;"	f	typeref:typename:void
+selectedUnit	src/things.h	/^	Thing* selectedUnit;$/;"	m	struct:__anonfc990d5f0808	typeref:typename:Thing *
+spriteId	src/things.h	/^	i8 spriteId;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:i8
+spritesheetPal	src/spritesheet.c	/^const unsigned short spritesheetPal[256] __attribute__((aligned(4))) __attribute__((visibility("/;"	v	typeref:typename:const unsigned short[256]
+spritesheetPalLen	src/spritesheet.h	/^#define spritesheetPalLen /;"	d
+spritesheetTiles	src/spritesheet.c	/^const unsigned int spritesheetTiles[2048] __attribute__((aligned(4))) __attribute__((visibility(/;"	v	typeref:typename:const unsigned int[2048]
+spritesheetTilesLen	src/spritesheet.h	/^#define spritesheetTilesLen /;"	d
+state	src/main.c	/^EWRAM_DATA State state = {0};$/;"	v	typeref:typename:EWRAM_DATA State
+subX	src/things.h	/^	i16 subX;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:i16
+subY	src/things.h	/^	i16 subY;$/;"	m	struct:__anonfc990d5f0508	typeref:typename:i16
+team	src/things.h	/^			u8 team;$/;"	m	struct:__anonfc990d5f0508::__anonfc990d5f060a::__anonfc990d5f0708	typeref:typename:u8
+things	src/things.h	/^	Thing things[MAX_THINGS];$/;"	m	struct:__anonfc990d5f0808	typeref:typename:Thing[]
+u16	src/things.h	/^typedef uint16_t u16;$/;"	t	typeref:typename:uint16_t
+u32	src/things.h	/^typedef uint32_t u32;$/;"	t	typeref:typename:uint32_t
+u8	src/things.h	/^typedef uint8_t  u8;$/;"	t	typeref:typename:uint8_t
+unit	src/things.h	/^		} unit;$/;"	m	union:__anonfc990d5f0508::__anonfc990d5f060a	typeref:struct:__anonfc990d5f0508::__anonfc990d5f060a::__anonfc990d5f0708
+world2grid	src/things.c	/^Vec2_i16 world2grid(Vec2_i16 worldPos) {$/;"	f	typeref:typename:Vec2_i16
+x	src/things.h	/^	i16 x, y;$/;"	m	struct:__anonfc990d5f0408	typeref:typename:i16
+y	src/things.h	/^	i16 x, y;$/;"	m	struct:__anonfc990d5f0408	typeref:typename:i16
