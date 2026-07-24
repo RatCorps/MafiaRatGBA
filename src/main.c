@@ -20,7 +20,8 @@ int main(void) {
 	REG_BG1CNT = BG_PRIO(1) | BG_CBB(0) | BG_SBB(OVERLAY_SBB) | BG_REG_32x32;
 
 	memcpy16(pal_bg_mem, overlayPal, overlayPalLen / 2);
-    memcpy32(&tile_mem[0][0], overlayTiles, overlayTilesLen / 4);
+	memset32(&tile_mem[0][0], 0, 32);
+    memcpy32(&tile_mem[0][4], overlayTiles, overlayTilesLen / 4);
 
     // apply the transparency in the tiles.
     pal_bg_mem[0] = 0x0000;

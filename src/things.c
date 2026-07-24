@@ -284,7 +284,7 @@ void drawMovementOverlay(u8 reachableTiles[GRID_SIZE]) {
         for (u32 x = 0; x < GRID_WIDTH; x++) {
             u16 tile = 0;
 
-            if (reachableTiles[GRID_INDEX((Vec2_i16){x, y})] > 0) tile = TILE_REACHABLE;
+            if (reachableTiles[GRID_INDEX((Vec2_i16){x, y})] > 0) tile = TILE_ID(TILE_REACHABLE);
 
             int mapX = x * 2;
             int mapY = y * 2;
@@ -411,7 +411,7 @@ void renderPathArrow(Path* path) {
         } else if (i == path->count - 1) {
             tileEntry = HEAD_TILES[dirIn];
         } else {
-            tileEntry = CORNER_TILES[dirIn][dirOut];
+            tileEntry = (dirIn == dirOut) ? PIPE_TILES[dirOut] : CORNER_TILES[dirIn][dirOut];
         }
 
         drawPathTile(path->tiles[i], tileEntry);
