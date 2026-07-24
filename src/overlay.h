@@ -6,10 +6,10 @@
 //	overlay, 128x128@4, 
 //	Transparent color : FF,CC,AA
 //	+ palette 256 entries, not compressed
-//	+ 256 tiles not compressed
+//	+ 256 tiles Metatiled by 2x2 not compressed
 //	Total size: 512 + 8192 = 8704
 //
-//	Time-stamp: 2026-07-23, 22:35:34
+//	Time-stamp: 2026-07-23, 23:22:06
 //	Exported by Cearn's GBA Image Transmogrifier, v0.9.2
 //	( http://www.coranac.com/projects/#grit )
 //

@@ -20,7 +20,7 @@ int main(void) {
 	REG_BG1CNT = BG_PRIO(1) | BG_CBB(0) | BG_SBB(OVERLAY_SBB) | BG_REG_32x32;
 
 	memcpy16(pal_bg_mem, overlayPal, overlayPalLen / 2);
-    memcpy32(&tile_mem[0][1], overlayTiles, overlayTilesLen / 4);
+    memcpy32(&tile_mem[0][0], overlayTiles, overlayTilesLen / 4);
 
     // apply the transparency in the tiles.
     pal_bg_mem[0] = 0x0000;
@@ -90,7 +90,7 @@ int main(void) {
             Thing* t = get(&state, id);
             t->alarms[0]++; // this is the animation tick
             for (u32 j = 1; j < MAX_ALARMS; ++j) {
-                if (t->alarms[i] > 0) t->alarms[j]--;
+                if (t->alarms[j] > 0) t->alarms[j]--;
             }
 
             if (t->kind == UNITKIND) {
@@ -121,6 +121,8 @@ int main(void) {
 						// we need to determine the possible positions we can move at.
 						// TODO: add more ranges to the enum.
 						calculateMovementRange(gridPos, UNIT_RANGES[selectedUnit->payload.unit.rank], state.reachableTiles);
+						state.path.count = 1;
+						state.path.tiles[0] = gridPos;
 					}
 				}
 			} else { // we already have a selected unit.
@@ -143,6 +145,8 @@ int main(void) {
 						state.selectedUnit = NULL;
 						//clearReachableTiles
 						memset(&state.reachableTiles, 0, GRID_SIZE);
+						memset(&state.path.tiles, 0, GRID_SIZE);
+						state.path.count = 0;
 					}
 				}
 			}

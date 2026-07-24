@@ -55,6 +55,7 @@ typedef uint8_t  u8;
 #define FIXED_8_TO_INT(fx) ((i8)((fx) >> FIX_SHIFT_4))
 
 #define SPRITE_ID(t) ((t->spriteId) * 4)
+#define TILE_ID(n) (n * 4)
 
 #define CURSOR_SPEED INT_TO_FIXED_16(TILE_SIZE)
 
@@ -136,7 +137,7 @@ typedef struct {
 } __attribute__((aligned(4))) Thing;
 
 #define PATH_MAX_LENGTH 32
-#define MAX_RANGE RANGE_UNDERBOSS + 1
+#define MAX_RANGE (RANGE_UNDERBOSS + 1)
 
 typedef struct {
     Vec2_i16 tiles[PATH_MAX_LENGTH];

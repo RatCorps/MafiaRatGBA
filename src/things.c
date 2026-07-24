@@ -284,7 +284,7 @@ void drawMovementOverlay(u8 reachableTiles[GRID_SIZE]) {
         for (u32 x = 0; x < GRID_WIDTH; x++) {
             u16 tile = 0;
 
-            if (reachableTiles[GRID_INDEX((Vec2_i16){x, y})] > 0) tile = TILE_PATH_CORNER;
+            if (reachableTiles[GRID_INDEX((Vec2_i16){x, y})] > 0) tile = TILE_REACHABLE;
 
             int mapX = x * 2;
             int mapY = y * 2;
@@ -302,12 +302,13 @@ u32 isSelectedPositionReachable(u8 reachableTiles[GRID_SIZE], Vec2_i16 gridPos) 
 	return 0;
 }
 
+// this is wrong.
 u32 isAdjacent(Vec2_i16 a, Vec2_i16 b) {
     u32 aScalar = GRID_INDEX(a); u32 bScalar = GRID_INDEX(b);
     if (aScalar - 1 == bScalar) return 1; // north
     if (aScalar + 1 == bScalar) return 1; // south
-    if (aScalar - GRID_HEIGHT == bScalar) return 1; // east
-    if (aScalar + GRID_HEIGHT == bScalar) return 1; // west
+    if (aScalar - GRID_WIDTH == bScalar) return 1; // east
+    if (aScalar + GRID_WIDTH == bScalar) return 1; // west
     return 0;
 }
 
@@ -350,6 +351,7 @@ void pathSnapToShortest(Path *path, Vec2_i16 target, u8 reachableTiles[GRID_SIZE
 }
 
 void pathUpdate(Path* path, Vec2_i16 cursorGridPos, u8 reachableTiles[GRID_SIZE]) {
+    if (path->count == 0) return;
     // out of range
     if (reachableTiles[GRID_INDEX(cursorGridPos)] == 0) return;
 
@@ -380,18 +382,19 @@ Direction getDirection(Vec2_i16 from, Vec2_i16 to) {
     return DIRECTION_NONE;
 };
 
-void drawPathTile(Vec2_i16 pos, u32 tileIndex) {
+void drawPathTile(Vec2_i16 pos, u32 tileEntry) {
     SCR_ENTRY *map = se_mem[OVERLAY_SBB];
-    int mapX = pos.x * 2;
-    int mapY = pos.y * 2;
+    u32 base  = TILE_ID((tileEntry & 0x03FF));
+    u32 flags = tileEntry & 0xFC00;
+    u32 hf = (flags & SE_HFLIP) ? 1 : 0;
+    u32 vf = (flags & SE_VFLIP) ? 1 : 0;
 
-    u16 base = tileIndex & 0x03FF;
-    u16 flip = tileIndex & 0x0C00;
-
-    map[(mapY + 0) * 32 + (mapX + 0)] = (base + 0) | flip;
-    map[(mapY + 0) * 32 + (mapX + 1)] = (base + 1) | flip;
-    map[(mapY + 1) * 32 + (mapX + 0)] = (base + 2) | flip;
-    map[(mapY + 1) * 32 + (mapX + 1)] = (base + 3) | flip;
+    int mapX = pos.x * 2, mapY = pos.y * 2;
+    for (u32 sy = 0; sy < 2; ++sy) {
+        for (u32 sx = 0; sx < 2; ++sx) {
+            map[(mapY + sy) * 32 + (mapX + sx)] = (base + (sy ^ vf) * 2 + (sx ^ hf)) | flags;
+        }
+    }
 }
 
 void renderPathArrow(Path* path) {
@@ -401,7 +404,7 @@ void renderPathArrow(Path* path) {
         Direction dirIn = (i > 0) ? getDirection(path->tiles[i - 1], path->tiles[i]) : DIRECTION_NONE;
         Direction dirOut = (i < path->count - 1) ? getDirection(path->tiles[i], path->tiles[i+1]) : DIRECTION_NONE;
 
-        static u32 tileEntry = 0;
+        u32 tileEntry = 0;
 
         if (i == 0) {
             tileEntry = PIPE_TILES[dirOut];
