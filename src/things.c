@@ -1,4 +1,5 @@
 #include "things.h"
+#include "tonc_memdef.h"
 
 const i8 SINTABLE[256] = {
     0,    3,    6,    9,   13,   16,   19,   22,   25,   28,   31,   34,   37,   40,   43,   46,
@@ -56,6 +57,34 @@ const UnitRange UNIT_RANGES[] = {
     [RANK_MECCANIZATA] = RANGE_MECCANIZATA,
     [RANK_CAPOREGIME] = RANGE_CAPOREGIME,
     [RANK_UNDERBOSS] = RANGE_UNDERBOSS,
+};
+
+const u32 HEAD_TILES[DIRECTION_COUNT] = {
+    [DIRECTION_NORTH] = TILE_PATH_ARROWU,
+    [DIRECTION_SOUTH] = TILE_PATH_ARROWU | SE_VFLIP,
+    [DIRECTION_EAST] = TILE_PATH_ARROWR,
+    [DIRECTION_WEST] = TILE_PATH_ARROWR | SE_HFLIP,
+};
+
+const u32 PIPE_TILES[DIRECTION_COUNT] = {
+    [DIRECTION_NORTH] = TILE_PATH_VER,
+    [DIRECTION_SOUTH] = TILE_PATH_VER,
+    [DIRECTION_EAST] =  TILE_PATH_HOR,
+    [DIRECTION_WEST] =  TILE_PATH_HOR,
+};
+
+const u32 CORNER_TILES[DIRECTION_COUNT][DIRECTION_COUNT] = {
+    [DIRECTION_NORTH][DIRECTION_EAST] = TILE_PATH_CORNER,
+    [DIRECTION_WEST][DIRECTION_SOUTH] = TILE_PATH_CORNER,
+
+    [DIRECTION_NORTH][DIRECTION_WEST] = TILE_PATH_CORNER | SE_HFLIP,
+    [DIRECTION_EAST][DIRECTION_SOUTH] = TILE_PATH_CORNER | SE_HFLIP,
+
+    [DIRECTION_SOUTH][DIRECTION_EAST] = TILE_PATH_CORNER | SE_VFLIP,
+    [DIRECTION_WEST][DIRECTION_NORTH] = TILE_PATH_CORNER | SE_VFLIP,
+
+    [DIRECTION_SOUTH][DIRECTION_WEST] = TILE_PATH_CORNER | SE_HFLIP | SE_VFLIP,
+    [DIRECTION_EAST][DIRECTION_NORTH] = TILE_PATH_CORNER | SE_HFLIP | SE_VFLIP,
 };
 
 void init(State *state) {
@@ -255,7 +284,7 @@ void drawMovementOverlay(u8 reachableTiles[GRID_SIZE]) {
         for (u32 x = 0; x < GRID_WIDTH; x++) {
             u16 tile = 0;
 
-            if (reachableTiles[GRID_INDEX((Vec2_i16){x, y})] > 0) tile = 1;
+            if (reachableTiles[GRID_INDEX((Vec2_i16){x, y})] > 0) tile = TILE_PATH_CORNER;
 
             int mapX = x * 2;
             int mapY = y * 2;
@@ -271,4 +300,117 @@ void drawMovementOverlay(u8 reachableTiles[GRID_SIZE]) {
 u32 isSelectedPositionReachable(u8 reachableTiles[GRID_SIZE], Vec2_i16 gridPos) {
 	if (reachableTiles[GRID_INDEX(gridPos)] > 0) return 1;
 	return 0;
+}
+
+u32 isAdjacent(Vec2_i16 a, Vec2_i16 b) {
+    u32 aScalar = GRID_INDEX(a); u32 bScalar = GRID_INDEX(b);
+    if (aScalar - 1 == bScalar) return 1; // north
+    if (aScalar + 1 == bScalar) return 1; // south
+    if (aScalar - GRID_HEIGHT == bScalar) return 1; // east
+    if (aScalar + GRID_HEIGHT == bScalar) return 1; // west
+    return 0;
+}
+
+u32 sameTile(Vec2_i16 a, Vec2_i16 b) {
+    if (a.x == b.x && a.y == b.y) return 1;
+    return 0;
+}
+
+void pathSnapToShortest(Path *path, Vec2_i16 target, u8 reachableTiles[GRID_SIZE]) {
+    Vec2_i16 unitGridPos = path->tiles[0];
+    Vec2_i16 backwards[PATH_MAX_LENGTH];
+    u8 backwardsCount = 0;
+
+    Vec2_i16 current = target;
+    u8 remainingMoves = reachableTiles[GRID_INDEX(current)];
+
+    while (!sameTile(current, unitGridPos) && backwardsCount < PATH_MAX_LENGTH) {
+        backwards[backwardsCount++] = current;
+
+        u32 stepped = 0;
+        for (int i = 0; i < 4; ++i) {
+            Vec2_i16 next = {current.x + DIRECTIONS[i].x, current.y + DIRECTIONS[i].y};
+            if (next.x < 0 || next.x >= GRID_WIDTH) continue;
+            if (next.y < 0 || next.y >= GRID_HEIGHT) continue;
+
+            // a bigger number means one step closer to the unit
+            if (reachableTiles[GRID_INDEX(next)] == remainingMoves + 1) {
+                current = next;
+                remainingMoves++;
+                stepped = 1;
+                break;
+            }
+        }
+        if (!stepped) break;
+    }
+
+    path->count = 0;
+    path->tiles[path->count++] = unitGridPos;
+    while (backwardsCount > 0) path->tiles[path->count++] = backwards[--backwardsCount];
+}
+
+void pathUpdate(Path* path, Vec2_i16 cursorGridPos, u8 reachableTiles[GRID_SIZE]) {
+    // out of range
+    if (reachableTiles[GRID_INDEX(cursorGridPos)] == 0) return;
+
+    // cursor came back onto the arrow, backtrack
+    for (u8 n = 0; n < path->count; ++n) {
+        if (sameTile(path->tiles[n], cursorGridPos)) {
+            path->count = n + 1;
+            return;
+        }
+    }
+
+    Vec2_i16 tail = path->tiles[path->count - 1];
+    u8 stepsUsed = path->count - 1;
+
+    if (isAdjacent(tail, cursorGridPos) && stepsUsed < MAX_RANGE) {
+        path->tiles[path->count++] = cursorGridPos;
+        return;
+    }
+
+    pathSnapToShortest(path, cursorGridPos, reachableTiles);
+}
+
+Direction getDirection(Vec2_i16 from, Vec2_i16 to) {
+    if (to.x > from.x) return DIRECTION_EAST;
+    if (to.x < from.x) return DIRECTION_WEST;
+    if (to.y > from.y) return DIRECTION_SOUTH;
+    if (to.y < from.y) return DIRECTION_NORTH;
+    return DIRECTION_NONE;
+};
+
+void drawPathTile(Vec2_i16 pos, u32 tileIndex) {
+    SCR_ENTRY *map = se_mem[OVERLAY_SBB];
+    int mapX = pos.x * 2;
+    int mapY = pos.y * 2;
+
+    u16 base = tileIndex & 0x03FF;
+    u16 flip = tileIndex & 0x0C00;
+
+    map[(mapY + 0) * 32 + (mapX + 0)] = (base + 0) | flip;
+    map[(mapY + 0) * 32 + (mapX + 1)] = (base + 1) | flip;
+    map[(mapY + 1) * 32 + (mapX + 0)] = (base + 2) | flip;
+    map[(mapY + 1) * 32 + (mapX + 1)] = (base + 3) | flip;
+}
+
+void renderPathArrow(Path* path) {
+    if (path->count == 0) return;
+
+    for (u32 i = 0; i < path->count; ++i) {
+        Direction dirIn = (i > 0) ? getDirection(path->tiles[i - 1], path->tiles[i]) : DIRECTION_NONE;
+        Direction dirOut = (i < path->count - 1) ? getDirection(path->tiles[i], path->tiles[i+1]) : DIRECTION_NONE;
+
+        static u32 tileEntry = 0;
+
+        if (i == 0) {
+            tileEntry = PIPE_TILES[dirOut];
+        } else if (i == path->count - 1) {
+            tileEntry = HEAD_TILES[dirIn];
+        } else {
+            tileEntry = CORNER_TILES[dirIn][dirOut];
+        }
+
+        drawPathTile(path->tiles[i], tileEntry);
+    }
 }

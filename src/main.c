@@ -76,6 +76,10 @@ int main(void) {
 
         Thing *c = &state.things[cursor];
 
+        if (state.selectedUnit != NULL) {
+            pathUpdate(&state.path, world2grid((Vec2_i16){c->subX, c->subY}), state.reachableTiles);
+        }
+
         // update game logic.
 		c->subX += dx * CURSOR_SPEED;
         c->subY += dy * CURSOR_SPEED;
@@ -146,6 +150,7 @@ int main(void) {
 
 		// render reachable tiles
 		drawMovementOverlay(state.reachableTiles);
+		renderPathArrow(&state.path);
 
         // render entities.
         for (u16 i = 0; i < state.activeCount; ++i) {

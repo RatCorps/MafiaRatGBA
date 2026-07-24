@@ -1,4 +1,4 @@
 for overlay tiles in BG1:
-    grit overlay.png -gt -gB4 -gTFFCCAA -ftc -fh -m!
+    grit assets/overlay.png -gt -gB4 -gTFFCCAA -ftc -fh -m! -o src/overlay
 for OAM sprites:
     grit assets/sheet.png -gt -gB4 -Mw2 -Mh2 -mR! -m! -gTFFCCAA -ftc -o src/spritesheet

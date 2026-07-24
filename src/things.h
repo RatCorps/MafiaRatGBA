@@ -21,8 +21,8 @@ typedef uint8_t  u8;
 #define TILE_SIZE 16
 #define SCREEN_HALF_WIDTH 120
 #define SCREEN_HALF_HEIGHT 80
-#define GRID_WIDTH (SCREEN_WIDTH / TILE_SIZE)
-#define GRID_HEIGHT (SCREEN_HEIGHT / TILE_SIZE)
+#define GRID_WIDTH (SCREEN_WIDTH / TILE_SIZE) // 15
+#define GRID_HEIGHT (SCREEN_HEIGHT / TILE_SIZE) // 10
 #define GRID_SIZE (GRID_WIDTH * GRID_HEIGHT)
 
 /*
@@ -135,9 +135,18 @@ typedef struct {
 /* ordered by natural alignment, should be fine. but forcing 4 byte packing for any DMA/cacheline related oddities. */
 } __attribute__((aligned(4))) Thing;
 
+#define PATH_MAX_LENGTH 32
+#define MAX_RANGE RANGE_UNDERBOSS + 1
+
+typedef struct {
+    Vec2_i16 tiles[PATH_MAX_LENGTH];
+    u32 count;
+} __attribute__((aligned(4))) Path;
+
 // this will go onto EWRAM
 typedef struct {
 	Thing things[MAX_THINGS];
+	Path path;
 	Thing* selectedUnit;
 	u16 grid[GRID_SIZE];
 	u16 activeIds[MAX_THINGS];
@@ -160,11 +169,33 @@ typedef struct {
     i8 loops;
 } __attribute__((aligned(4))) Animation;
 
+typedef enum {
+    DIRECTION_NONE,
+    DIRECTION_NORTH,
+    DIRECTION_SOUTH,
+    DIRECTION_WEST,
+    DIRECTION_EAST,
+    DIRECTION_COUNT
+} Direction;
+
+typedef enum {
+    TILE_NONE,
+    TILE_REACHABLE,
+    TILE_PATH_CORNER,
+    TILE_PATH_HOR,
+    TILE_PATH_VER,
+    TILE_PATH_ARROWR,
+    TILE_PATH_ARROWU
+} TileIds;
+
 extern const i8 SINTABLE[256];
 extern const i8 COSTABLE[256];
 extern const Vec2_i16 DIRECTIONS[4];
 extern const Animation ANIMATIONS[];
 extern const UnitRange UNIT_RANGES[];
+extern const u32 HEAD_TILES[DIRECTION_COUNT];
+extern const u32 PIPE_TILES[DIRECTION_COUNT];
+extern const u32 CORNER_TILES[DIRECTION_COUNT][DIRECTION_COUNT];
 
 void init(State *state);
 u16 add(State* state, Thing thing);
@@ -179,5 +210,12 @@ u32 GRID_INDEX(Vec2_i16 gridpos);
 void calculateMovementRange(Vec2_i16 startGridPos, u32 maxRange, u8 reachableTiles[GRID_SIZE]);
 void drawMovementOverlay(u8 reachableTiles[GRID_SIZE]);
 u32 isSelectedPositionReachable(u8 reachableTiles[GRID_SIZE], Vec2_i16 gridPos);
+u32 isAdjacent(Vec2_i16 a, Vec2_i16 b);
+u32 sameTile(Vec2_i16 a, Vec2_i16 b);
+void pathSnapToShortest(Path *path, Vec2_i16 target, u8 reachableTiles[GRID_SIZE]);
+void pathUpdate(Path* path, Vec2_i16 cursorGridPos, u8 reachableTiles[GRID_SIZE]);
+Direction getDirection(Vec2_i16 from, Vec2_i16 to);
+void drawPathTile(Vec2_i16 pos, u32 tileIndex);
+void renderPathArrow(Path* path);
 
 #endif
