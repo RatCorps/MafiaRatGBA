@@ -1,11 +1,5 @@
 # MafiaRatGBA
 
-Jogo de estratégia tática para **Game Boy Advance**, feito em C++ com a biblioteca
-[Butano](https://github.com/GValiente/butano). O projeto jogável fica em `teste_do_pato/`.
-
-> Ratos mafiosos num tabuleiro. Mova o cursor, selecione uma unidade, veja o alcance
-> de movimento e a seta do caminho, e mova pelo grid.
-
 ---
 
 ## 1. Pré-requisitos (instalar uma vez)
