@@ -1,3 +1,16 @@
-build/*
+# artefatos de build (rebuildaveis)
+build/
+*.elf
+*.gba
+*.sav
+
+# tags de editor
 .tags
 tags
+
+# coisas do Claude / IA
+CLAUDE.md
+.claude/
+
+# backup local do butano (nao versionar; o butano e submodulo)
+butano_backup/

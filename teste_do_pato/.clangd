@@ -1,0 +1,46 @@
+CompileFlags:
+  Compiler: /opt/devkitpro/devkitARM/bin/arm-none-eabi-g++
+  Add:
+    - -std=c++23
+    - --target=arm-none-eabi
+    - -mthumb
+    - -mcpu=arm7tdmi
+    - -ffreestanding
+    # Headers de sistema do devkitARM (fallback caso o query-driver do Zed nao dispare)
+    - -isystem/opt/devkitpro/devkitARM/arm-none-eabi/include/c++/16.1.0
+    - -isystem/opt/devkitpro/devkitARM/arm-none-eabi/include/c++/16.1.0/arm-none-eabi
+    - -isystem/opt/devkitpro/devkitARM/arm-none-eabi/include
+    - -isystem/opt/devkitpro/devkitARM/lib/gcc/arm-none-eabi/16.1.0/include
+    # Includes do Butano (core), da common e deste jogo
+    - -I/home/pato/MafiaRatGBA/butano/butano/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/include
+    - -I/home/pato/MafiaRatGBA/butano/common/include
+    - -I/home/pato/MafiaRatGBA/teste_do_pato/include
+    # Includes internos do Butano (hardware e bibliotecas de terceiros)
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/aas/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/advgm/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/agbabi/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/cult-of-gba-bios/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/gba-link-connection/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/gba-modern/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/gbt-player/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/libtonc/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/libugba/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/maxmod/include
+    - -I/home/pato/MafiaRatGBA/butano/butano/hw/3rd_party/posprintf/include
+    # Headers gerados pelo grit/mmutil durante o build (sprite_items, music_items, etc.)
+    - -I/home/pato/MafiaRatGBA/teste_do_pato/build
+    # Defines usados pelo toolchain do Butano (para o parser nao reclamar)
+    - -DBN_TOOLCHAIN_TAG="DKA"
+  Remove:
+    # Flags do GCC que o clang (motor do clangd) nao entende
+    - -mthumb-interwork
+    - -mtune=*
+    - -mpoke-function-name
+    - -ffast-math
+    - -funwind-tables
+
+Diagnostics:
+  # Butano usa muita coisa freestanding; silencia ruido irrelevante no editor
+  Suppress:
+    - unused-includes
